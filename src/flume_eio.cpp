@@ -7,9 +7,25 @@
 #include <node.h>
 
 #include <unistd.h>
+#include <time.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ThriftFlumeEventServer.h>
+#include <transport/TSocket.h>
+#include <transport/TBufferTransports.h>
+#include <protocol/TBinaryProtocol.h>
+#include <sys/param.h>
+#include <string>
+#include <sstream>
+#include <map>
+
 
 using namespace node;
 using namespace v8;
+
+using namespace apache::thrift;
+using namespace apache::thrift::protocol;
+using namespace apache::thrift::transport;
 
 #define REQ_FUN_ARG(I, VAR) \
   if (args.Length() <= (I) || !args[I]->IsFunction()) \
@@ -67,9 +83,16 @@ public:
   {
     HandleScope scope;
 
-    REQ_FUN_ARG(0, cb);
 
     FlumeLogEio* fl = ObjectWrap::Unwrap<FlumeLogEio>(args.This());
+
+    // Check the function args
+    REQ_FUN_ARG(1, cb);
+    if (args.Length() < 1) {
+        return ThrowException(Exception::Error(String::New("Must give message")));
+    } else if (!args[0]->isString()) {
+        return ThrowException(Exception::Error(String::New("Message must be a string")));
+    }
 
     flume_baton_t *baton = new flume_baton_t();
     baton->fl = fl;
