@@ -133,8 +133,9 @@ public:
         transport->open();
 
         ThriftFlumeEvent event;
-        // INFO is the default priority, so we can leave for now
-        //event.priority = INFO;
+        // INFO is the default priority
+        // TODO Make this configurable on message
+        event.priority = Priority::INFO;
 
 // This code doesn't compile on Macs, so ignore it
 #ifndef __APPLE__
