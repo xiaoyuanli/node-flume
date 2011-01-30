@@ -7,11 +7,13 @@ http://www.cloudera.com/hadoop
 
 ### Installing
 Ensure the following packages are installed:
+
 * Node.js
 * Thrift
 
 #### Building
 Run the following commands to build the modules.
+
     cd src && node-waf configure && node-waf build
 
 Your extension will then be located in _src/build/default/flume_eio.node_.
