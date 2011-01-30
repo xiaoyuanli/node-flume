@@ -7,6 +7,6 @@ def configure(conf):
 
 def build(bld):
   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
-  obj.cxxflags = ["-g", "-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE", "-Wall"]
+  obj.cxxflags = ["-g", "-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE", "-Wall", "-I/usr/local/include/thrift", "-lthrift"]
   obj.target = "flume_eio"
-  obj.source = "flume_eio.cpp"
+  obj.source = ["flume_types.cpp", "ThriftFlumeEventServer.cpp", "flume_constants.cpp", "ThriftFlumeEventServer_server.skeleton.cpp", "flume_eio.cpp"]
