@@ -25,13 +25,14 @@ using namespace apache::thrift;
 using namespace apache::thrift::protocol;
 using namespace apache::thrift::transport;
 
-#define HOST_NAME_MAX 255
+#define HOST_NAME_MAX_SIZE 255
 
-#define REQ_FUN_ARG(I, VAR) \
-  if (args.Length() <= (I) || !args[I]->IsFunction()) \
-    return ThrowException(Exception::TypeError( \
-        String::New("Argument " #I " must be a function"))); \
-  Local<Function> VAR = Local<Function>::Cast(args[I]);
+#define REQ_FUN_ARG(I, VAR)                                             \
+	if (args.Length() <= (I) || !args[I]->IsFunction())                   \
+	return ThrowException(Exception::TypeError(                         \
+	String::New("Argument " #I " must be a function")));  \
+	Local<Function> VAR = Local<Function>::Cast(args[I]);
+
 
 class FlumeLogEio: ObjectWrap
 {
@@ -70,9 +71,17 @@ public:
   static Handle<Value> New(const Arguments& args)
   {
     HandleScope scope;
-    FlumeLogEio* fl = new FlumeLogEio();
-    fl->Wrap(args.This());
-    return args.This();
+
+    if (args.IsConstructCall()) {
+      FlumeLogEio* fl = new FlumeLogEio();
+      fl->Wrap(args.This());
+
+      return args.This();
+    }
+	else {
+	  return scope.Close(ThrowException(Exception::Error(String::New("Must use new operator"))));
+	}
+
   }
 
   struct flume_baton_t {
@@ -88,11 +97,12 @@ public:
 
     FlumeLogEio* fl = ObjectWrap::Unwrap<FlumeLogEio>(args.This());
 
-    // Check the function args
-    REQ_FUN_ARG(1, cb);
+    //char* message = args[0]->IsUndefined() ? (char*)"" : *String::Utf8Value(args[1]);
 
     // TODO Ensure function argument (arg[0]) is a string
     // TODO Since tags are optional, tag_key/tag_val should be used if exist
+
+	REQ_FUN_ARG(0, cb);
 
     flume_baton_t *baton = new flume_baton_t();
     baton->fl = fl;
@@ -120,7 +130,7 @@ public:
     boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
 
     v8::String::Utf8Value hostnameString(baton->fl->flume_host);
-    if (0 != gethostname(*hostnameString, HOST_NAME_MAX)) {
+    if (0 != gethostname(*hostnameString, HOST_NAME_MAX_SIZE)) {
       //return ThrowException(Exception::TypeError(String::New("Invalid hostname")));
       return -1;
     }

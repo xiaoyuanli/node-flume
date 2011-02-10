@@ -431,8 +431,8 @@ void ThriftFlumeEventServerClient::send_append(const ThriftFlumeEvent& evt)
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void ThriftFlumeEventServerClient::rawAppend(const RawEvent& evt)
@@ -450,8 +450,8 @@ void ThriftFlumeEventServerClient::send_rawAppend(const RawEvent& evt)
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 EventStatus::type ThriftFlumeEventServerClient::ackedAppend(const ThriftFlumeEvent& evt)
@@ -470,8 +470,8 @@ void ThriftFlumeEventServerClient::send_ackedAppend(const ThriftFlumeEvent& evt)
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 EventStatus::type ThriftFlumeEventServerClient::recv_ackedAppend()
@@ -493,13 +493,11 @@ EventStatus::type ThriftFlumeEventServerClient::recv_ackedAppend()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("ackedAppend") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   EventStatus::type _return;
   ThriftFlumeEventServer_ackedAppend_presult result;
@@ -529,8 +527,8 @@ void ThriftFlumeEventServerClient::send_close()
   args.write(oprot_);
 
   oprot_->writeMessageEnd();
-  oprot_->getTransport()->flush();
   oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 void ThriftFlumeEventServerClient::recv_close()
@@ -552,13 +550,11 @@ void ThriftFlumeEventServerClient::recv_close()
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::INVALID_MESSAGE_TYPE);
   }
   if (fname.compare("close") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
-    throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::WRONG_METHOD_NAME);
   }
   ThriftFlumeEventServer_close_presult result;
   result.read(iprot_);
@@ -568,7 +564,7 @@ void ThriftFlumeEventServerClient::recv_close()
   return;
 }
 
-bool ThriftFlumeEventServerProcessor::process(boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot, boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot) {
+bool ThriftFlumeEventServerProcessor::process(boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot, boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot, void* callContext) {
 
   ::apache::thrift::protocol::TProtocol* iprot = piprot.get();
   ::apache::thrift::protocol::TProtocol* oprot = poprot.get();
@@ -586,16 +582,16 @@ bool ThriftFlumeEventServerProcessor::process(boost::shared_ptr< ::apache::thrif
     oprot->writeMessageBegin(fname, ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return true;
   }
 
-  return process_fn(iprot, oprot, fname, seqid);
+  return process_fn(iprot, oprot, fname, seqid, callContext);
 }
 
-bool ThriftFlumeEventServerProcessor::process_fn(::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, std::string& fname, int32_t seqid) {
-  std::map<std::string, void (ThriftFlumeEventServerProcessor::*)(int32_t, ::apache::thrift::protocol::TProtocol*, ::apache::thrift::protocol::TProtocol*)>::iterator pfn;
+bool ThriftFlumeEventServerProcessor::process_fn(::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, std::string& fname, int32_t seqid, void* callContext) {
+  std::map<std::string, void (ThriftFlumeEventServerProcessor::*)(int32_t, ::apache::thrift::protocol::TProtocol*, ::apache::thrift::protocol::TProtocol*, void*)>::iterator pfn;
   pfn = processMap_.find(fname);
   if (pfn == processMap_.end()) {
     iprot->skip(::apache::thrift::protocol::T_STRUCT);
@@ -605,95 +601,193 @@ bool ThriftFlumeEventServerProcessor::process_fn(::apache::thrift::protocol::TPr
     oprot->writeMessageBegin(fname, ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return true;
   }
-  (this->*(pfn->second))(seqid, iprot, oprot);
+  (this->*(pfn->second))(seqid, iprot, oprot, callContext);
   return true;
 }
 
-void ThriftFlumeEventServerProcessor::process_append(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void ThriftFlumeEventServerProcessor::process_append(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("ThriftFlumeEventServer.append", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "ThriftFlumeEventServer.append");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "ThriftFlumeEventServer.append");
+  }
+
   ThriftFlumeEventServer_append_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "ThriftFlumeEventServer.append", bytes);
+  }
 
   try {
     iface_->append(args.evt);
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "ThriftFlumeEventServer.append");
+    }
+    return;
   }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->asyncComplete(ctx, "ThriftFlumeEventServer.append");
+  }
+
   return;
 }
 
-void ThriftFlumeEventServerProcessor::process_rawAppend(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void ThriftFlumeEventServerProcessor::process_rawAppend(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("ThriftFlumeEventServer.rawAppend", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "ThriftFlumeEventServer.rawAppend");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "ThriftFlumeEventServer.rawAppend");
+  }
+
   ThriftFlumeEventServer_rawAppend_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "ThriftFlumeEventServer.rawAppend", bytes);
+  }
 
   try {
     iface_->rawAppend(args.evt);
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "ThriftFlumeEventServer.rawAppend");
+    }
+    return;
   }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->asyncComplete(ctx, "ThriftFlumeEventServer.rawAppend");
+  }
+
   return;
 }
 
-void ThriftFlumeEventServerProcessor::process_ackedAppend(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void ThriftFlumeEventServerProcessor::process_ackedAppend(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("ThriftFlumeEventServer.ackedAppend", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "ThriftFlumeEventServer.ackedAppend");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "ThriftFlumeEventServer.ackedAppend");
+  }
+
   ThriftFlumeEventServer_ackedAppend_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "ThriftFlumeEventServer.ackedAppend", bytes);
+  }
 
   ThriftFlumeEventServer_ackedAppend_result result;
   try {
     result.success = iface_->ackedAppend(args.evt);
     result.__isset.success = true;
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "ThriftFlumeEventServer.ackedAppend");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("ackedAppend", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "ThriftFlumeEventServer.ackedAppend");
   }
 
   oprot->writeMessageBegin("ackedAppend", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "ThriftFlumeEventServer.ackedAppend", bytes);
+  }
 }
 
-void ThriftFlumeEventServerProcessor::process_close(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot)
+void ThriftFlumeEventServerProcessor::process_close(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
+  void* ctx = NULL;
+  if (eventHandler_.get() != NULL) {
+    ctx = eventHandler_->getContext("ThriftFlumeEventServer.close", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(eventHandler_.get(), ctx, "ThriftFlumeEventServer.close");
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preRead(ctx, "ThriftFlumeEventServer.close");
+  }
+
   ThriftFlumeEventServer_close_args args;
   args.read(iprot);
   iprot->readMessageEnd();
-  iprot->getTransport()->readEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postRead(ctx, "ThriftFlumeEventServer.close", bytes);
+  }
 
   ThriftFlumeEventServer_close_result result;
   try {
     iface_->close();
   } catch (const std::exception& e) {
+    if (eventHandler_.get() != NULL) {
+      eventHandler_->handlerError(ctx, "ThriftFlumeEventServer.close");
+    }
+
     ::apache::thrift::TApplicationException x(e.what());
     oprot->writeMessageBegin("close", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
-    oprot->getTransport()->flush();
     oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
     return;
+  }
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->preWrite(ctx, "ThriftFlumeEventServer.close");
   }
 
   oprot->writeMessageBegin("close", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
-  oprot->getTransport()->writeEnd();
+
+  if (eventHandler_.get() != NULL) {
+    eventHandler_->postWrite(ctx, "ThriftFlumeEventServer.close", bytes);
+  }
 }
 
 } // namespace

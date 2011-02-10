@@ -1,12 +1,19 @@
+VERSION='0.0.1'
+APPNAME='node-flume'
+srcdir = '.'
+blddir = 'build'
+
 def set_options(opt):
   opt.tool_options("compiler_cxx")
 
 def configure(conf):
   conf.check_tool("compiler_cxx")
   conf.check_tool("node_addon")
+  conf.check(lib='thrift', uselib_store='THRIFT')
 
 def build(bld):
   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
-  obj.cxxflags = ["-g", "-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE", "-Wall", "-I/usr/local/include/thrift", "-lthrift"]
+  obj.uselib = ['THRIFT']
+  obj.cxxflags = ["-g", "-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE", "-Wall", "-I/usr/local/include/thrift"]
   obj.target = "flume_eio"
-  obj.source = ["flume_types.cpp", "ThriftFlumeEventServer.cpp", "flume_constants.cpp", "ThriftFlumeEventServer_server.skeleton.cpp", "flume_eio.cpp"]
+  obj.source = ["flume_eio_types.cpp", "ThriftFlumeEventServer.cpp", "flume_eio_constants.cpp","flume_eio.cpp"]

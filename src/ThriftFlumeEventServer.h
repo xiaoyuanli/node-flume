@@ -7,7 +7,7 @@
 #define ThriftFlumeEventServer_H
 
 #include <TProcessor.h>
-#include "flume_types.h"
+#include "flume_eio_types.h"
 
 namespace flume_eio {
 
@@ -346,13 +346,13 @@ class ThriftFlumeEventServerClient : virtual public ThriftFlumeEventServerIf {
 class ThriftFlumeEventServerProcessor : virtual public ::apache::thrift::TProcessor {
  protected:
   boost::shared_ptr<ThriftFlumeEventServerIf> iface_;
-  virtual bool process_fn(::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, std::string& fname, int32_t seqid);
+  virtual bool process_fn(::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, std::string& fname, int32_t seqid, void* callContext);
  private:
-  std::map<std::string, void (ThriftFlumeEventServerProcessor::*)(int32_t, ::apache::thrift::protocol::TProtocol*, ::apache::thrift::protocol::TProtocol*)> processMap_;
-  void process_append(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_rawAppend(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_ackedAppend(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
-  void process_close(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot);
+  std::map<std::string, void (ThriftFlumeEventServerProcessor::*)(int32_t, ::apache::thrift::protocol::TProtocol*, ::apache::thrift::protocol::TProtocol*, void*)> processMap_;
+  void process_append(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_rawAppend(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_ackedAppend(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_close(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   ThriftFlumeEventServerProcessor(boost::shared_ptr<ThriftFlumeEventServerIf> iface) :
     iface_(iface) {
@@ -362,7 +362,7 @@ class ThriftFlumeEventServerProcessor : virtual public ::apache::thrift::TProces
     processMap_["close"] = &ThriftFlumeEventServerProcessor::process_close;
   }
 
-  virtual bool process(boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot, boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot);
+  virtual bool process(boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot, boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot, void* callContext);
   virtual ~ThriftFlumeEventServerProcessor() {}
 };
 
