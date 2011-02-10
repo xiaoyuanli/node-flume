@@ -22,7 +22,7 @@ Your extension will then be located in _src/build/default/flume_eio.node_.
 In order to use flume node
 
     var flumelog = require('flume_eio');
-    var fl = new flumelog.FlumeLogEio();
+    var fl = new flumelog.FlumeLogEio('localhost', 35853);
     fl.log("message");
 
 ### AgentSink
