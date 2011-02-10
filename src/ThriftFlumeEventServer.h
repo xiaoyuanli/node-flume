@@ -9,7 +9,7 @@
 #include <TProcessor.h>
 #include "flume_types.h"
 
-
+namespace flume_eio {
 
 class ThriftFlumeEventServerIf {
  public:
@@ -412,6 +412,6 @@ class ThriftFlumeEventServerMultiface : virtual public ThriftFlumeEventServerIf 
 
 };
 
-
+} // namespace
 
 #endif

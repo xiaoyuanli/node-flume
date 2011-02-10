@@ -5,7 +5,7 @@
  */
 #include "ThriftFlumeEventServer.h"
 
-
+namespace flume_eio {
 
 uint32_t ThriftFlumeEventServer_append_args::read(::apache::thrift::protocol::TProtocol* iprot) {
 
@@ -696,5 +696,5 @@ void ThriftFlumeEventServerProcessor::process_close(int32_t seqid, ::apache::thr
   oprot->getTransport()->writeEnd();
 }
 
-
+} // namespace
 

@@ -5,12 +5,12 @@
  */
 #include "flume_constants.h"
 
-
+namespace flume_eio {
 
 const flumeConstants g_flume_constants;
 
 flumeConstants::flumeConstants() {
 }
 
-
+} // namespace
 

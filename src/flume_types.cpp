@@ -5,7 +5,7 @@
  */
 #include "flume_types.h"
 
-
+namespace flume_eio {
 
 const char* ThriftFlumeEvent::ascii_fingerprint = "BC13FFB3246A0179557F7F60C181A557";
 const uint8_t ThriftFlumeEvent::binary_fingerprint[16] = {0xBC,0x13,0xFF,0xB3,0x24,0x6A,0x01,0x79,0x55,0x7F,0x7F,0x60,0xC1,0x81,0xA5,0x57};
@@ -196,4 +196,4 @@ uint32_t RawEvent::write(::apache::thrift::protocol::TProtocol* oprot) const {
   return xfer;
 }
 
-
+} // namespace

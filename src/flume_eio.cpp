@@ -19,6 +19,8 @@
 using namespace node;
 using namespace v8;
 
+using namespace std;
+using namespace flume_eio;
 using namespace apache::thrift;
 using namespace apache::thrift::protocol;
 using namespace apache::thrift::transport;
@@ -129,13 +131,13 @@ public:
     */
 
     try {
-        ThriftFlumeEventServerClient client(protocol);
+        flume_eio::ThriftFlumeEventServerClient client(protocol);
         transport->open();
 
-        ThriftFlumeEvent event;
+        flume_eio::ThriftFlumeEvent event;
         // INFO is the default priority
         // TODO Make this configurable on message
-        event.priority = Priority::INFO;
+        event.priority = flume_eio::Priority::INFO;
 
 // This code doesn't compile on Macs, so ignore it
 #ifndef __APPLE__

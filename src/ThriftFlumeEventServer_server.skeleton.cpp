@@ -14,6 +14,8 @@ using namespace ::apache::thrift::server;
 
 using boost::shared_ptr;
 
+using namespace flume_eio;
+
 class ThriftFlumeEventServerHandler : virtual public ThriftFlumeEventServerIf {
  public:
   ThriftFlumeEventServerHandler() {

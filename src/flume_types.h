@@ -13,7 +13,7 @@
 
 
 
-
+namespace flume_eio {
 
 struct Priority {
   enum type {
@@ -130,6 +130,6 @@ class RawEvent {
 
 };
 
-
+} // namespace
 
 #endif

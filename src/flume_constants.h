@@ -8,7 +8,7 @@
 
 #include "flume_types.h"
 
-
+namespace flume_eio {
 
 class flumeConstants {
  public:
@@ -18,6 +18,6 @@ class flumeConstants {
 
 extern const flumeConstants g_flume_constants;
 
-
+} // namespace
 
 #endif
