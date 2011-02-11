@@ -21,11 +21,13 @@ Your extension will then be located in _src/build/default/flume_eio.node_.
 ### Example
 In order to use flume node
 
-    var flumelog = require('flume_eio');
-    var fl = new flumelog.FlumeLogEio('localhost', 35853);
-    fl.log("message");
+    var flumelogger = require('flume');
+    // var fl = new flumelogger.FlumeLog('localhost', 35853);
+    // Values are hard-coded for now as localhost and 35854
+    var fl = new flumelogger.FlumeLog()
+    fl.log("my message");
 
 ### AgentSink
 To set up your agent sink in flume, it will look like:
 
-    host : thrift($port) | agentBESink("localhost",35853)
+    host : rpcSource(35854) | agentBESink("localhost",35853)
