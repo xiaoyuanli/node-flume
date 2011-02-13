@@ -25,7 +25,7 @@ using namespace apache::thrift;
 using namespace apache::thrift::protocol;
 using namespace apache::thrift::transport;
 
-#define HOST_NAME_MAX_SIZE 255
+#define MAX_HOST_NAME_SIZE 255
 
 // FlumeLog class prototype
 class FlumeLog: ObjectWrap
@@ -116,23 +116,28 @@ Handle<Value> NodeFlumeLog(const Arguments &args) {
 
 Handle<Value> NodeFlumeLog_Log(const Arguments &args) {
 	HandleScope scope;
-//	Local<Value> flume_host = String::New("localhost");
+	Local<Value> flume_host = String::New("localhost");
 	Local<Value> flume_port = String::New("35854");
-	Local<Value> flume_host = ((FlumeLog*)External::Unwrap(args.Holder()->GetInternalField(0)))->_GetFlumeHost();
-//	Local<Value> flume_port = ((FlumeLog*)External::Unwrap(args.Holder()->GetInternalField(0)))->_GetFlumePort();
+//XXX	Local<Value> flume_host = ((FlumeLog*)External::Unwrap(args.Holder()->GetInternalField(0)))->_GetFlumeHost();
+//XXX	Local<Value> flume_port = ((FlumeLog*)External::Unwrap(args.Holder()->GetInternalField(0)))->_GetFlumePort();
 
-    Local<Value> message = args[0]->IsUndefined() ? String::New("No message.") : args[0]->ToString();
+    Local<Value> message = args[0]->IsUndefined() ? String::New("") : args[0]->ToString();
 
-    // TODO Since tags are optional, tag_key/tag_val should be used if exist
+    /* TODO Only use this if tags are specified
+     * Tags should be passed as a hash and then iterated over
+    map<string,string> tags;
+    if (!args[1]->IsUndefined()) {
+      tags[tag_key] = tag_value;
+    }
+     */
 
     std::string hostString(*v8::String::Utf8Value(flume_host));
     v8::String::Utf8Value hostnameString(flume_host);
-    if (0 != gethostname(*hostnameString, HOST_NAME_MAX_SIZE)) {
+    if (0 != gethostname(*hostnameString, MAX_HOST_NAME_SIZE)) {
       return ThrowException(Exception::TypeError(String::New("Invalid hostname")));
     }
 
-//    boost::shared_ptr<TSocket> socket(new TSocket(hostString, flume_port->Uint32Value()));
-    boost::shared_ptr<TSocket> socket(new TSocket("localhost", 35854));
+    boost::shared_ptr<TSocket> socket(new TSocket(hostString, flume_port->Uint32Value()));
     boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
     boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
 
