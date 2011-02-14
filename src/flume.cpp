@@ -125,26 +125,40 @@ Handle<Value> NodeFlumeLog_Log(const Arguments &args) {
 
     /* TODO Only use this if tags are specified
      * Tags should be passed as a hash and then iterated over
-    map<string,string> tags;
-    if (!args[1]->IsUndefined()) {
-      tags[tag_key] = tag_value;
-    }
      */
+    std::string tag_key, tag_value;
+    bool has_tags = false;
+    typedef map<string,string> eventTags;
+		eventTags tags;
+    if (!args[1]->IsUndefined()) {
+        Local<Object> tagsObj = args[1]->ToObject();
+        Local<Array> tagNames = tagsObj->GetPropertyNames();
+        uint32_t length = tagNames->Length();
 
+        // Iterate over the array
+        for (uint32_t i=0;i<length;i++) {
+            Local<String> v8TagKey = tagNames->Get(i)->ToString();
+            Local<String> v8TagValue = tagsObj->Get(v8TagKey)->ToString();
+
+            std::string tagKey(*String::AsciiValue(v8TagKey));
+            std::string tagValue(*String::AsciiValue(v8TagValue));
+            tags[tagKey] = tagValue;
+        }
+
+        // Set has_tags to true to ensure tags are added to metadata
+        has_tags = true;
+    }
+
+    // Convert the hostname to string and test its length
     std::string hostString(*v8::String::Utf8Value(flume_host));
     v8::String::Utf8Value hostnameString(flume_host);
     if (0 != gethostname(*hostnameString, MAX_HOST_NAME_SIZE)) {
-      return ThrowException(Exception::TypeError(String::New("Invalid hostname")));
+        return ThrowException(Exception::TypeError(String::New("Invalid hostname")));
     }
 
     boost::shared_ptr<TSocket> socket(new TSocket(hostString, flume_port->Uint32Value()));
     boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
     boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
-
-    /* TODO Only use this if tags are specified
-    map<string,string> tag;
-    tag[tag_key] = tag_value;
-    */
 
     // TODO Write a lock/mutex here
     try {
@@ -173,19 +187,19 @@ Handle<Value> NodeFlumeLog_Log(const Arguments &args) {
         }
 #endif
 
+        // Set the hostname and the message
         event.host = std::string(*hostnameString);
-
         std::string flume_message(*v8::String::AsciiValue(message));
         event.body = flume_message;
 
-        // if tags exist {
-        // event.fields = tag
-        // }
-        client.append(event);
+        // We have tags, so let's add them to the meta data
+        if (has_tags == true) { event.fields = tags; }
 
+        // Send the exent down the pipe and close the transport
+        client.append(event);
         transport->close();
     } catch ( ... ) {
-      return ThrowException(Exception::TypeError(String::New("Flume issue")));
+        return ThrowException(Exception::TypeError(String::New("Flume issue")));
     }
 
 	return scope.Close(Undefined());
