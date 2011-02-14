@@ -1,1 +1,2 @@
-var node-flume = require("./src/build/default/flume");
+ 
+module.exports = require("./src/build/default/flume");
