@@ -24,8 +24,11 @@ In order to use flume node
     var flumelogger = require('flume');
     // var fl = new flumelogger.FlumeLog('localhost', 35853);
     // Values are hard-coded for now as localhost and 35854
-    var fl = new flumelogger.FlumeLog()
-    fl.log("my message");
+    var f = new flumelogger.FlumeLog()
+    f.log("my message");
+    //  Use optional tags
+    var flumeTags = {"type": "testMessage"};
+    f.log("message 2",flumeTags);
 
 ### AgentSink
 To set up your agent sink in flume, it will look like:
