@@ -1,4 +1,5 @@
 build/
 src/gen-cpp/
+src/.lock-wscript
 *.o
 *.swp
