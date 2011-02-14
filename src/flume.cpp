@@ -6,7 +6,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ThriftFlumeEventServer.h"
+#include "gen-cpp/ThriftFlumeEventServer.h"
 #include <thrift/Thrift.h>
 #include <thrift/transport/TSocket.h>
 #include <thrift/transport/TBufferTransports.h>
