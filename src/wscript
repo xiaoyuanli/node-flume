@@ -1,3 +1,5 @@
+import sys, os
+
 VERSION='0.0.1'
 APPNAME='node-flume'
 srcdir = '.'
@@ -11,9 +13,18 @@ def configure(conf):
   conf.check_tool("node_addon")
   conf.check(lib='thrift', uselib_store='THRIFT')
 
+def gen_thrift():
+  os.system('thrift --gen cpp thrift/flume_eio.thrift')
+
 def build(bld):
   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
+  gen_thrift()
   obj.uselib = ['THRIFT']
   obj.cxxflags = ["-g", "-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE", "-Wall", "-I/usr/local/include/thrift"]
   obj.target = "flume"
-  obj.source = ["flume_eio_types.cpp", "ThriftFlumeEventServer.cpp", "flume_eio_constants.cpp","flume.cpp"]
+  obj.source = [
+    "gen-cpp/flume_eio_types.cpp",
+    "gen-cpp/ThriftFlumeEventServer.cpp",
+    "gen-cpp/flume_eio_constants.cpp",
+    "flume.cpp"
+  ]
